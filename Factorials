@@ -1,0 +1,43 @@
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("--- Калькулятор факториала ---");
+        Console.WriteLine("Введите число:");
+
+        string input = Console.ReadLine();
+
+        if (int.TryParse(input, out int n))
+        {
+            if (n >= 0)
+            {
+                long factorial = CalculateFactorial(n);
+                Console.WriteLine($"\nФакториал числа {n} равен {factorial}");
+            }
+            else
+            {
+                Console.WriteLine("Ошибка: факториал можно вычислить только для неотрицательных чисел.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ошибка: введите целое число.");
+        }
+
+        Console.WriteLine("\nНажмите любую клавишу для выхода...");
+        Console.ReadKey();
+    }
+    static long CalculateFactorial(int n)
+    {
+        long result = 1;
+
+        if (n == 0 || n == 1)
+            return 1;
+        for (int i = 2; i <= n; i++)
+        {
+            result *= i;
+        }
+
+        return result;
+    }
+}
