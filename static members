@@ -1,0 +1,69 @@
+using System;
+
+namespace UniversitySystem
+{
+    public struct Book
+    {
+        public string Title { get; set; }
+        public string Author { get; set; }
+
+        public Book(string title, string author)
+        {
+            Title = title;
+            Author = author;
+        }
+    }
+    public class Student
+    {
+        private static int _count = 0;
+
+        public string Name { get; set; }
+        public Book FavoriteBook { get; set; }
+
+        public static int Count => _count;
+
+        public Student(string name, Book favoriteBook)
+        {
+            Name = name;
+            FavoriteBook = favoriteBook;
+            _count++;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Система учета студентов ---\n");
+            Console.WriteLine($"Начальное количество студентов в системе: {Student.Count}\n");
+
+            var student1 = new Student("Иван", new Book("Хоббит", "Дж. Р. Р. Толкин"));
+            Console.WriteLine($"Создан студент {student1.Name}.");
+            Console.WriteLine($"Текущее количество студентов в системе: {Student.Count}\n");
+
+            var student2 = new Student("Анна", new Book("1984", "Джордж Оруэлл"));
+            Console.WriteLine($"Создан студент {student2.Name}.");
+            Console.WriteLine($"Текущее количество студентов в системе: {Student.Count}\n");
+
+            Console.WriteLine("--- Эксперимент с копированием ---");
+            Console.WriteLine($"Оригинальный студент: {student1.Name}, его любимая книга: \"{student1.FavoriteBook.Title}\" автора {student1.FavoriteBook.Author}.\n");
+
+            Student studentCopy = student1;
+            Book bookCopy = student1.FavoriteBook;
+
+            Console.WriteLine("...Копируем данные и вносим изменения...");
+            studentCopy.Name = "Петр";
+            bookCopy.Title = "Властелин Колец";
+
+            Console.WriteLine("Изменяем имя у копии студента на 'Петр'.");
+            Console.WriteLine("Изменяем название у копии книги на 'Властелин Колец'.\n");
+
+            Console.WriteLine("Результат после изменений:");
+            Console.WriteLine($"Имя оригинального студента (student1): {student1.Name}");
+            Console.WriteLine($"Название любимой книги оригинального студента (student1.FavoriteBook.Title): {student1.FavoriteBook.Title}\n");
+
+            Console.WriteLine("Вывод: Имя студента изменилось, так как классы копируются по ссылке.");
+            Console.WriteLine("Вывод: Книга не изменилась, так как структуры копируются по значению.");
+        }
+    }
+}
