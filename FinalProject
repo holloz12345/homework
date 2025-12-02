@@ -1,0 +1,113 @@
+using System;
+using System.Collections.Generic;
+
+class Book
+{
+    public int Id;
+    public string Title;
+    public string Author;
+    public int Year;
+}
+
+class Library
+{
+    private List<Book> books = new List<Book>();
+    private int nextId = 1;
+
+    public void AddBook(string title, string author, int year)
+    {
+        books.Add(new Book { Id = nextId++, Title = title, Author = author, Year = year });
+    }
+
+    public bool RemoveBook(int id)
+    {
+        Book book = books.Find(b => b.Id == id);
+        if (book != null)
+        {
+            books.Remove(book);
+            return true;
+        }
+        return false;
+    }
+
+    public void PrintAllBooks()
+    {
+        foreach (Book book in books)
+        {
+            Console.WriteLine($"ID: {book.Id}, Название: {book.Title}, Автор: {book.Author}, Год: {book.Year}");
+        }
+    }
+
+    public List<Book> FindBooks(string searchText)
+    {
+        return books.FindAll(b => 
+            b.Title.Contains(searchText) || 
+            b.Author.Contains(searchText));
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Library library = new Library();
+        
+        // Добавляем тестовые книги
+        library.AddBook("Война и мир", "Лев Толстой", 1869);
+        library.AddBook("Преступление и наказание", "Федор Достоевский", 1866);
+        
+        while (true)
+        {
+            Console.WriteLine("\n1. Добавить книгу");
+            Console.WriteLine("2. Удалить книгу");
+            Console.WriteLine("3. Показать все книги");
+            Console.WriteLine("4. Найти книгу");
+            Console.WriteLine("5. Выйти");
+            Console.Write("Выберите: ");
+            
+            string choice = Console.ReadLine();
+            
+            switch (choice)
+            {
+                case "1":
+                    Console.Write("Название: ");
+                    string title = Console.ReadLine();
+                    Console.Write("Автор: ");
+                    string author = Console.ReadLine();
+                    Console.Write("Год: ");
+                    int year = int.Parse(Console.ReadLine());
+                    library.AddBook(title, author, year);
+                    Console.WriteLine("Книга добавлена!");
+                    break;
+                    
+                case "2":
+                    Console.Write("ID книги для удаления: ");
+                    int id = int.Parse(Console.ReadLine());
+                    if (library.RemoveBook(id))
+                        Console.WriteLine("Книга удалена!");
+                    else
+                        Console.WriteLine("Книга не найдена!");
+                    break;
+                    
+                case "3":
+                    Console.WriteLine("\nВсе книги:");
+                    library.PrintAllBooks();
+                    break;
+                    
+                case "4":
+                    Console.Write("Поиск: ");
+                    string search = Console.ReadLine();
+                    List<Book> found = library.FindBooks(search);
+                    Console.WriteLine($"Найдено {found.Count} книг:");
+                    foreach (Book book in found)
+                    {
+                        Console.WriteLine($"- {book.Title}, {book.Author}, {book.Year}");
+                    }
+                    break;
+                    
+                case "5":
+                    return;
+            }
+        }
+    }
+}
