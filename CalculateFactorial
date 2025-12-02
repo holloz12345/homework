@@ -1,0 +1,39 @@
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("--- Калькулятор факториала ---");
+        Console.WriteLine("Введите число:");
+        
+        if (int.TryParse(Console.ReadLine(), out int n))
+        {
+            if (n >= 0)
+            {
+                long result = CalculateFactorial(n);
+                Console.WriteLine($"Факториал числа {n} равен {result}");
+            }
+            else
+            {
+                Console.WriteLine("Ошибка: факториал можно вычислить только для неотрицательных чисел.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ошибка: введено не число.");
+        }
+    }
+    
+    static long CalculateFactorial(int n)
+    {
+        long factorial = 1;
+        
+        for (int i = 1; i <= n; i++)
+        {
+            factorial *= i;
+        }
+        
+        return factorial;
+    }
+}
