@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+
+class TaskItem
+{
+    public string Description;
+    public bool IsDone;
+    
+    public TaskItem(string description)
+    {
+        Description = description;
+        IsDone = false;
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        List<TaskItem> tasks = new List<TaskItem>();
+        
+        while (true)
+        {
+            Console.WriteLine("\n1. Добавить");
+            Console.WriteLine("2. Показать");
+            Console.WriteLine("3. Отметить");
+            Console.WriteLine("4. Выйти");
+            Console.Write("Выбор: ");
+            
+            string choice = Console.ReadLine();
+            
+            if (choice == "1")
+            {
+                Console.Write("Задача: ");
+                tasks.Add(new TaskItem(Console.ReadLine()));
+            }
+            else if (choice == "2")
+            {
+                for (int i = 0; i < tasks.Count; i++)
+                {
+                    Console.WriteLine($"{i+1}. {(tasks[i].IsDone ? "[X]" : "[ ]")} {tasks[i].Description}");
+                }
+            }
+            else if (choice == "3")
+            {
+                Console.Write("Номер задачи: ");
+                int num = int.Parse(Console.ReadLine()) - 1;
+                if (num >= 0 && num < tasks.Count)
+                    tasks[num].IsDone = true;
+            }
+            else if (choice == "4")
+            {
+                break;
+            }
+        }
+    }
+}
