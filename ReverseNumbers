@@ -1,0 +1,23 @@
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        int[] numbers = { 10, 20, 30, 40, 50 };
+        int[] reverse = new int[5];
+        
+        Console.Write("Исходный массив: ");
+        for (int i = 0; i < numbers.Length; i++)
+        {
+            Console.Write(numbers[i] + " ");
+            reverse[numbers.Length - 1 - i] = numbers[i];
+        }
+        
+        Console.Write("\nПеревернутый массив: ");
+        for (int i = 0; i < reverse.Length; i++)
+        {
+            Console.Write(reverse[i] + " ");
+        }
+    }
+}
