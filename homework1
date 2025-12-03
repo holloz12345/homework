@@ -1,0 +1,23 @@
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("Рецепт: Яичница\n");
+        
+        Console.WriteLine("Ингредиенты:");
+        Console.WriteLine("- Яйца - 2 шт.");
+        Console.WriteLine("- Соль - по вкусу");
+        Console.WriteLine("- Масло растительное - 1 ст. ложка\n");
+        
+        Console.WriteLine("Приготовление:");
+        Console.WriteLine("1. Разогреть сковороду с маслом");
+        Console.WriteLine("2. Разбить яйца на сковороду");
+        Console.WriteLine("3. Посолить и жарить 3-4 минуты");
+        Console.WriteLine("4. Подавать на тарелке\n");
+        
+        Console.WriteLine("Нажмите любую клавишу для выхода...");
+        Console.ReadLine();
+    }
+}
