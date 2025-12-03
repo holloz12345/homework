@@ -1,0 +1,42 @@
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Start();
+    }
+
+    static void Start()
+    {
+        Console.WriteLine(" Улучшеный Калькулятор ");
+        
+        double a = Input("Первое число: ");
+        double b = Input("Второе число: ");
+        char op = InputOp();
+        double res = Calc(a, b, op);
+        
+        Console.WriteLine($"{a} {op} {b} = {res}");
+        Console.ReadLine();
+    }
+
+    static double Input(string text)
+    {
+        Console.Write(text);
+        return double.Parse(Console.ReadLine());
+    }
+
+    static char InputOp()
+    {
+        Console.Write("Операция (+, -, *, /): ");
+        return Console.ReadLine()[0];
+    }
+
+    static double Calc(double x, double y, char op)
+    {
+        if (op == '+') return x + y;
+        if (op == '-') return x - y;
+        if (op == '*') return x * y;
+        return x / y;
+    }
+}
