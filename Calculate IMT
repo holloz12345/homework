@@ -1,0 +1,20 @@
+using System;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("--- Калькулятор Индекса Массы Тела (ИМТ) ---\n");
+        
+        Console.Write("Введите ваш вес в килограммах: ");
+        double weight = Convert.ToDouble(Console.ReadLine());
+        
+        Console.Write("Введите ваш рост в метрах (например, 1.75): ");
+        double height = Convert.ToDouble(Console.ReadLine());
+        
+        double bmi = weight / (height * height);
+        
+        Console.WriteLine("\n--- Ваш результат ---");
+        Console.WriteLine($"При весе {weight} кг и росте {height} м, ваш ИМТ составляет: {bmi}");
+    }
+}
