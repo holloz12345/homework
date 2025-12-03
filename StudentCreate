@@ -1,0 +1,50 @@
+using System;
+
+public class Student
+{
+    private int _age;
+    
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    
+    public int Age
+    {
+        get => _age;
+        set
+        {
+            if (value < 6 || value > 100)
+                Console.WriteLine("Ошибка: возраст должен быть от 6 до 100 лет.");
+            else
+                _age = value;
+        }
+    }
+    
+    public Student(string firstName, string lastName, int age)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        Age = age;
+    }
+    
+    public string FullName => $"{FirstName} {LastName}";
+    
+    public void Introduce() => Console.WriteLine($"Привет, меня зовут {FullName}, мне {Age} лет.");
+}
+
+public class Program
+{
+    public static void Main()
+    {
+        Student student1 = new Student("Иван", "Петров", 19);
+        Student student2 = new Student("Анна", "Сидорова", 20);
+        
+        Console.WriteLine("--- Знакомство со студентами ---");
+        student1.Introduce();
+        student2.Introduce();
+        
+        Console.WriteLine($"\nПолное имя первого: {student1.FullName}");
+        Console.WriteLine($"Полное имя второго: {student2.FullName}");
+        
+        Console.ReadLine();
+    }
+}
