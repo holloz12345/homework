@@ -1,0 +1,37 @@
+using System;
+
+class Rectangle
+{
+    public double width;
+    public double height;
+    
+    public double GetArea()
+    {
+        return width * height;
+    }
+    
+    public double GetPerimeter()
+    {
+        return 2 * (width + height);
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        Rectangle rect1 = new Rectangle();
+        rect1.width = 5;
+        rect1.height = 3;
+        
+        Rectangle rect2 = new Rectangle();
+        rect2.width = 7;
+        rect2.height = 4;
+        
+        Console.WriteLine($"Прямоугольник 1: ширина {rect1.width}, высота {rect1.height}");
+        Console.WriteLine($"Площадь: {rect1.GetArea()}, Периметр: {rect1.GetPerimeter()}\n");
+        
+        Console.WriteLine($"Прямоугольник 2: ширина {rect2.width}, высота {rect2.height}");
+        Console.WriteLine($"Площадь: {rect2.GetArea()}, Периметр: {rect2.GetPerimeter()}");
+    }
+}
