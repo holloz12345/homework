@@ -1,0 +1,86 @@
+using System;
+
+namespace DataProcessingSystem
+{
+    public abstract class DataProcessor
+    {
+        protected string rawData;
+        protected int recordsCount;
+
+        public void Process()
+        {
+            ReadData();
+            ParseData();
+            AnalyzeData();
+            SaveReport();
+        }
+
+        protected abstract void ReadData();
+        protected abstract void ParseData();
+
+        protected virtual void AnalyzeData()
+        {
+            recordsCount = rawData.Length > 0 ? 3 : 0;
+            Console.WriteLine($"[Анализ]: Анализ данных... Найдено {recordsCount} записей.");
+        }
+
+        protected virtual void SaveReport()
+        {
+            Console.WriteLine($"[Сохранение]: Отчет сохранен в консоль. Результат: {recordsCount} записей обработано.");
+        }
+    }
+
+    public class CsvDataProcessor : DataProcessor
+    {
+        protected override void ReadData()
+        {
+            rawData = "Иван,Петров,30;Анна,Сидорова,25";
+            Console.WriteLine("[Чтение]: Чтение сырых данных из CSV...");
+        }
+
+        protected override void ParseData()
+        {
+            Console.WriteLine("[Парсинг]: Парсинг CSV данных...");
+        }
+
+        protected override void AnalyzeData()
+        {
+            recordsCount = 2;
+            Console.WriteLine($"[Анализ]: Анализ данных... Найдено {recordsCount} записей.");
+        }
+    }
+
+    public class XmlDataProcessor : DataProcessor
+    {
+        protected override void ReadData()
+        {
+            rawData = "<users><user>Иван</user><user>Петр</user><user>Анна</user></users>";
+            Console.WriteLine("[Чтение]: Чтение сырых данных из XML...");
+        }
+
+        protected override void ParseData()
+        {
+            Console.WriteLine("[Парсинг]: Парсинг XML данных...");
+        }
+
+        protected override void AnalyzeData()
+        {
+            recordsCount = 3;
+            Console.WriteLine($"[Анализ]: Анализ данных... Найдено {recordsCount} записей.");
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            Console.WriteLine("— Запуск обработчика CSV данных —");
+            var csvProcessor = new CsvDataProcessor();
+            csvProcessor.Process();
+
+            Console.WriteLine("\n— Запуск обработчика XML данных —");
+            var xmlProcessor = new XmlDataProcessor();
+            xmlProcessor.Process();
+        }
+    }
+}
