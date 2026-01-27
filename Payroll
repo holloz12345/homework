@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+
+namespace SalarySystem
+{
+    public class Employee
+    {
+        public string Name { get; set; }
+        public decimal BaseSalary { get; set; }
+        
+        public Employee(string name, decimal baseSalary)
+        {
+            Name = name;
+            BaseSalary = baseSalary;
+        }
+        
+        public virtual decimal CalculateMonthlySalary()
+        {
+            return BaseSalary;
+        }
+        
+        public virtual string GetEmployeeType()
+        {
+            return "Сотрудник";
+        }
+    }
+    
+    public class Manager : Employee
+    {
+        public decimal Bonus { get; set; }
+        
+        public Manager(string name, decimal baseSalary, decimal bonus) 
+            : base(name, baseSalary)
+        {
+            Bonus = bonus;
+        }
+        
+        public override decimal CalculateMonthlySalary()
+        {
+            return BaseSalary + Bonus;
+        }
+        
+        public override string GetEmployeeType()
+        {
+            return "Менеджер";
+        }
+    }
+    
+    public class Developer : Employee
+    {
+        public int LinesOfCodeWritten { get; set; }
+        
+        public Developer(string name, decimal baseSalary, int linesOfCodeWritten) 
+            : base(name, baseSalary)
+        {
+            LinesOfCodeWritten = linesOfCodeWritten;
+        }
+        
+        public override decimal CalculateMonthlySalary()
+        {
+            decimal bonus = LinesOfCodeWritten * 0.5m;
+            return BaseSalary + bonus;
+        }
+        
+        public override string GetEmployeeType()
+        {
+            return "Разработчик";
+        }
+    }
+    
+    class Program
+    {
+        static void Main()
+        {
+            Console.WriteLine("--- Расчет заработной платы ---\n");
+            
+            List<Employee> employees = new List<Employee>
+            {
+                new Manager("Иван Петров", 100000, 5000),
+                new Developer("Анна Сидорова", 90000, 10500),
+                new Manager("Олег Васильев", 120000, 10000)
+            };
+            
+            foreach (var employee in employees)
+            {
+                decimal salary = employee.CalculateMonthlySalary();
+                Console.WriteLine($"Зарплата для {employee.GetEmployeeType()} {employee.Name}: {salary}");
+            }
+        }
+    }
+}
