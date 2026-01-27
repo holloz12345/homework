@@ -1,0 +1,69 @@
+using System;
+using System.Collections.Generic;
+
+namespace CacheSystem
+{
+    public sealed class CacheService
+    {
+        private static CacheService _instance;
+        private static readonly object _lock = new object();
+        private readonly Dictionary<string, object> _cache;
+
+        private CacheService()
+        {
+            _cache = new Dictionary<string, object>();
+            Console.WriteLine("(Экземпляр CacheService создан)\n");
+        }
+
+        public static CacheService GetInstance()
+        {
+            if (_instance == null)
+            {
+                lock (_lock)
+                {
+                    if (_instance == null)
+                    {
+                        _instance = new CacheService();
+                    }
+                }
+            }
+            return _instance;
+        }
+
+        public void Add(string key, object value)
+        {
+            _cache[key] = value;
+            Console.WriteLine($"Данные '{key}' добавлены.");
+        }
+
+        public object Get(string key)
+        {
+            if (_cache.TryGetValue(key, out object value))
+            {
+                return value;
+            }
+            return null;
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            Console.WriteLine("--- Демонстрация работы глобального кэша (Singleton) ---");
+
+            CacheService cache1 = CacheService.GetInstance();
+            CacheService cache2 = CacheService.GetInstance();
+
+            Console.WriteLine("Добавляем данные в кэш через первую ссылку...");
+            cache1.Add("ConnectionString", "Server=.;Database=CacheDB;");
+            cache1.Add("ApiKey", "XYZ12345ABC");
+
+            Console.WriteLine("\nПолучаем данные из кэша через ВТОРУЮ ссылку...");
+            Console.WriteLine($"Значение по ключу 'ConnectionString': {cache2.Get("ConnectionString")}");
+            Console.WriteLine($"Значение по ключу 'ApiKey': {cache2.Get("ApiKey")}");
+
+            Console.WriteLine($"\nОбе переменные ссылаются на один объект: {ReferenceEquals(cache1, cache2)}");
+        }
+    }
+}
