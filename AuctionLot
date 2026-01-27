@@ -1,0 +1,77 @@
+using System;
+
+namespace AuctionSystem
+{
+    public class Bidder
+    {
+        public string Name { get; }
+
+        public Bidder(string name)
+        {
+            Name = name;
+        }
+
+        public void OnPriceChanged(string lotName, decimal newPrice, string bidderName)
+        {
+            if (bidderName != Name)
+            {
+                Console.WriteLine($"[{Name}]: Новая ставка на '{lotName}' - {newPrice:F2} (от {bidderName}).");
+            }
+        }
+    }
+
+    public class AuctionLot
+    {
+        public string Name { get; }
+        public decimal CurrentPrice { get; private set; }
+        
+        public delegate void PriceChangedHandler(string lotName, decimal newPrice, string bidderName);
+        public event PriceChangedHandler PriceChanged;
+
+        public AuctionLot(string name, decimal startingPrice)
+        {
+            Name = name;
+            CurrentPrice = startingPrice;
+        }
+
+        public void PlaceBid(Bidder bidder, decimal newPrice)
+        {
+            Console.WriteLine($"\n{bidder.Name} делает ставку: {newPrice:F2}");
+            
+            if (newPrice <= CurrentPrice)
+            {
+                Console.WriteLine($"Ставка не принята. Сумма должна быть выше {CurrentPrice:F2}.");
+                return;
+            }
+
+            CurrentPrice = newPrice;
+            PriceChanged?.Invoke(Name, newPrice, bidder.Name);
+        }
+    }
+
+    class Program
+    {
+        static void Main()
+        {
+            Console.WriteLine("---\nАукцион начинается! Лот: 'Старинная ваза'. Начальная цена: 1000.00 ---\n");
+
+            var lot = new AuctionLot("Старинная ваза", 1000.00m);
+
+            var ivan = new Bidder("Иван");
+            var petr = new Bidder("Петр");
+            var anna = new Bidder("Анна");
+
+            lot.PriceChanged += ivan.OnPriceChanged;
+            lot.PriceChanged += petr.OnPriceChanged;
+            lot.PriceChanged += anna.OnPriceChanged;
+
+            Console.WriteLine("Участник 'Иван' подписался на лот.");
+            Console.WriteLine("Участник 'Петр' подписался на лот.");
+            Console.WriteLine("Участник 'Анна' подписался на лот.");
+
+            lot.PlaceBid(ivan, 1200.00m);
+            lot.PlaceBid(anna, 1500.00m);
+            lot.PlaceBid(petr, 1300.00m);
+        }
+    }
+}
