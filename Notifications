@@ -1,0 +1,82 @@
+using System;
+
+namespace NotificationSystem
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("--- Гибкая система уведомлений ---\n");
+            
+            Console.Write("Какой тип уведомлений использовать? (email/sms): ");
+            string userChoice = Console.ReadLine()?.ToLower().Trim();
+            
+            NotificationServiceFactory factory;
+            
+            if (userChoice == "email")
+            {
+                factory = new EmailNotificationFactory();
+                Console.WriteLine("Создана фабрика для Email.");
+            }
+            else if (userChoice == "sms")
+            {
+                factory = new SmsNotificationFactory();
+                Console.WriteLine("Создана фабрика для SMS.");
+            }
+            else
+            {
+                Console.WriteLine("Неверный выбор. Используем email по умолчанию.");
+                factory = new EmailNotificationFactory();
+            }
+            
+            Console.WriteLine("Отправляем уведомление...");
+            IMessageSender sender = factory.CreateSender();
+            sender.Send("Ваш заказ #123 успешно оформлен.");
+            
+            Console.WriteLine("\nНажмите любую клавишу для выхода...");
+            Console.ReadKey();
+        }
+    }
+    
+    public interface IMessageSender
+    {
+        void Send(string message);
+    }
+    
+    public class EmailSender : IMessageSender
+    {
+        public void Send(string message)
+        {
+            Console.WriteLine($"Отправка по Email: {message}");
+        }
+    }
+    
+    public class SmsSender : IMessageSender
+    {
+        public void Send(string message)
+        {
+            Console.WriteLine($"Отправка по SMS: {message}");
+        }
+    }
+    
+    public abstract class NotificationServiceFactory
+    {
+        public abstract IMessageSender CreateSender();
+    }
+    
+    public class EmailNotificationFactory : NotificationServiceFactory
+    {
+        public override IMessageSender CreateSender()
+        {
+            return new EmailSender();
+        }
+    }
+    
+    public class SmsNotificationFactory : NotificationServiceFactory
+    {
+        public override IMessageSender CreateSender()
+        {
+            return new SmsSender();
+        }
+    }
+}
