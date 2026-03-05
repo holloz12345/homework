@@ -1,0 +1,220 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace TaskManagerApp
+{
+    public class TaskItem
+    {
+        public int Id { get; }
+        public string Title { get; }
+        public bool IsCompleted { get; private set; }
+
+        public TaskItem(int id, string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                throw new ArgumentException("Название задачи не может быть пустым.", nameof(title));
+
+            Id = id;
+            Title = title;
+            IsCompleted = false;
+        }
+
+        public void MarkAsCompleted()
+        {
+            IsCompleted = true;
+        }
+    }
+
+    public interface ITaskService
+    {
+        bool AddTask(string title);
+        IReadOnlyList<TaskItem> GetAllTasks();
+        TaskItem? FindTaskById(int id);
+        bool MarkTaskAsCompleted(int id);
+        bool RemoveTask(int id);
+    }
+
+    public class TaskService : ITaskService
+    {
+        private readonly List<TaskItem> _tasks = new List<TaskItem>();
+        private int _nextId = 1;
+
+        public bool AddTask(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                return false;
+
+            try
+            {
+                var task = new TaskItem(_nextId++, title);
+                _tasks.Add(task);
+                return true;
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+        }
+
+        public IReadOnlyList<TaskItem> GetAllTasks()
+        {
+            return _tasks.ToList().AsReadOnly();
+        }
+
+        public TaskItem? FindTaskById(int id)
+        {
+            return _tasks.FirstOrDefault(t => t.Id == id);
+        }
+
+        public bool MarkTaskAsCompleted(int id)
+        {
+            var task = FindTaskById(id);
+            if (task == null || task.IsCompleted)
+                return false;
+
+            task.MarkAsCompleted();
+            return true;
+        }
+
+        public bool RemoveTask(int id)
+        {
+            var task = FindTaskById(id);
+            if (task == null)
+                return false;
+
+            return _tasks.Remove(task);
+        }
+    }
+
+    public class ConsoleMenu
+    {
+        private readonly ITaskService _taskService;
+
+        public ConsoleMenu(ITaskService taskService)
+        {
+            _taskService = taskService;
+        }
+
+        public void Run()
+        {
+            bool isRunning = true;
+
+            while (isRunning)
+            {
+                PrintMenu();
+                string? input = Console.ReadLine();
+
+                switch (input)
+                {
+                    case "1":
+                        AddTaskDialog();
+                        break;
+                    case "2":
+                        ShowAllTasksDialog();
+                        break;
+                    case "3":
+                        MarkTaskCompletedDialog();
+                        break;
+                    case "4":
+                        DeleteTaskDialog();
+                        break;
+                    case "0":
+                        isRunning = false;
+                        Console.WriteLine("Выход из программы...");
+                        break;
+                    default:
+                        Console.WriteLine("Неверный ввод. Пожалуйста, выберите пункт меню от 0 до 4.");
+                        break;
+                }
+
+                if (isRunning)
+                {
+                    Console.WriteLine("\nНажмите любую клавишу для продолжения...");
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        private void PrintMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("===== МЕНЕДЖЕР ЗАДАЧ =====");
+            Console.WriteLine("1 — Добавить задачу");
+            Console.WriteLine("2 — Показать все задачи");
+            Console.WriteLine("3 — Отметить задачу выполненной");
+            Console.WriteLine("4 — Удалить задачу");
+            Console.WriteLine("0 — Выход");
+            Console.Write("Выберите пункт: ");
+        }
+
+        private void AddTaskDialog()
+        {
+            Console.Write("Введите название задачи: ");
+            string? title = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                Console.WriteLine("Ошибка: Название не может быть пустым.");
+                return;
+            }
+
+            bool result = _taskService.AddTask(title);
+            Console.WriteLine(result ? "Задача успешно добавлена!" : "Ошибка при добавлении задачи.");
+        }
+
+        private void ShowAllTasksDialog()
+        {
+            var tasks = _taskService.GetAllTasks();
+
+            Console.WriteLine("\n--- Список задач ---");
+            if (tasks.Count == 0)
+            {
+                Console.WriteLine("Задач пока нет.");
+                return;
+            }
+
+            foreach (var task in tasks)
+            {
+                string status = task.IsCompleted ? "[X]" : "[ ]";
+                Console.WriteLine($"{status} {task.Id}: {task.Title}");
+            }
+        }
+
+        private void MarkTaskCompletedDialog()
+        {
+            Console.Write("Введите ID задачи для отметки как выполненной: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Ошибка: Некорректный ID.");
+                return;
+            }
+
+            bool result = _taskService.MarkTaskAsCompleted(id);
+            Console.WriteLine(result ? "Задача отмечена как выполненная!" : "Ошибка: Задача не найдена или уже выполнена.");
+        }
+
+        private void DeleteTaskDialog()
+        {
+            Console.Write("Введите ID задачи для удаления: ");
+            if (!int.TryParse(Console.ReadLine(), out int id))
+            {
+                Console.WriteLine("Ошибка: Некорректный ID.");
+                return;
+            }
+
+            bool result = _taskService.RemoveTask(id);
+            Console.WriteLine(result ? "Задача удалена!" : "Ошибка: Задача с таким ID не найдена.");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            ITaskService taskService = new TaskService();
+            ConsoleMenu menu = new ConsoleMenu(taskService);
+            menu.Run();
+        }
+    }
+}
