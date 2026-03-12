@@ -1,0 +1,243 @@
+XML
+
+
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.10" />
+  </ItemGroup>
+</Project>
+
+
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Lesson6_LoginMVVM.App">
+    <Application.Styles>
+        <FluentTheme />
+    </Application.Styles>
+</Application>
+
+
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Lesson6_LoginMVVM.MainWindow"
+        Width="420" Height="260"
+        CanResize="False"
+        Title="Вход (MVVM)">
+    
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto"
+          Margin="16" RowSpacing="10">
+        
+        <TextBlock Text="Вход" 
+                   FontSize="20" 
+                   FontWeight="Bold"
+                   Grid.Row="0"/>
+        
+        <StackPanel Grid.Row="1" Spacing="4">
+            <TextBlock Text="Логин"/>
+            <TextBox Text="{Binding Login, Mode=TwoWay}"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="2" Spacing="4">
+            <TextBlock Text="Пароль"/>
+            <TextBox Text="{Binding Password, Mode=TwoWay}" 
+                     PasswordChar="*"/>
+        </StackPanel>
+        
+        <StackPanel Grid.Row="3" Spacing="8">
+            <Button Content="Войти" 
+                    Command="{Binding LoginCommand}"/>
+            <TextBlock Text="{Binding Status}"/>
+        </StackPanel>
+    </Grid>
+</Window>
+
+
+
+CSHARP
+
+
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+
+namespace Lesson6_LoginMVVM;
+
+public partial class App : Application
+{
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+    
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindow();
+        }
+        base.OnFrameworkInitializationCompleted();
+    }
+}
+
+
+
+using Avalonia;
+
+namespace Lesson6_LoginMVVM;
+
+internal class Program
+{
+    public static void Main(string[] args)
+    {
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    }
+    
+    public static AppBuilder BuildAvaloniaApp()
+    {
+        return AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .LogToTrace();
+    }
+}
+
+
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
+
+namespace Lesson6_LoginMVVM;
+
+public class ViewModelBase : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler PropertyChanged;
+    
+    protected void RaisePropertyChanged(string name = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+}
+
+public class RelayCommand : ICommand
+{
+    private readonly Action _execute;
+    private readonly Func<bool> _canExecute;
+
+    public RelayCommand(Action execute, Func<bool> canExecute = null)
+    {
+        _execute = execute;
+        _canExecute = canExecute;
+    }
+
+    public event EventHandler CanExecuteChanged;
+    
+    public bool CanExecute(object parameter)
+    {
+        return _canExecute == null || _canExecute();
+    }
+    
+    public void Execute(object parameter)
+    {
+        _execute();
+    }
+    
+    public void RaiseCanExecuteChanged()
+    {
+        CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    }
+}
+
+public class MainWindowViewModel : ViewModelBase
+{
+    private string _login = "";
+    private string _password = "";
+    private string _status = "Введите логин и пароль";
+
+    public string Login
+    {
+        get { return _login; }
+        set
+        {
+            if (_login == value) return;
+            _login = value;
+            RaisePropertyChanged(nameof(Login));
+            RaisePropertyChanged(nameof(CanLogin));
+            LoginCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string Password
+    {
+        get { return _password; }
+        set
+        {
+            if (_password == value) return;
+            _password = value;
+            RaisePropertyChanged(nameof(Password));
+            RaisePropertyChanged(nameof(CanLogin));
+            LoginCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public string Status
+    {
+        get { return _status; }
+        set
+        {
+            if (_status == value) return;
+            _status = value;
+            RaisePropertyChanged(nameof(Status));
+        }
+    }
+
+    public bool CanLogin
+    {
+        get 
+        { 
+            return !string.IsNullOrWhiteSpace(Login) && 
+                   !string.IsNullOrWhiteSpace(Password); 
+        }
+    }
+
+    public RelayCommand LoginCommand { get; private set; }
+
+    public MainWindowViewModel()
+    {
+        LoginCommand = new RelayCommand(OnLogin, () => CanLogin);
+    }
+
+    private void OnLogin()
+    {
+        Status = $"Добро пожаловать, {Login}!";
+    }
+}
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+        DataContext = new MainWindowViewModel();
+    }
+
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+}
