@@ -1,0 +1,278 @@
+XML
+
+
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.10" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.10" />
+  </ItemGroup>
+</Project>
+
+
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Lesson4_Settings.App">
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+  
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <MergeResourceInclude Source="/Assets/AppResources.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>
+
+
+
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  
+  <SolidColorBrush x:Key="AccentBrush">#3B82F6</SolidColorBrush>
+  <SolidColorBrush x:Key="DangerBrush">#DC2626</SolidColorBrush>
+  
+  <Thickness x:Key="PaddingS">8,6</Thickness>
+  <Thickness x:Key="PaddingM">12,8</Thickness>
+  <CornerRadius x:Key="RadiusM">10</CornerRadius>
+  
+</ResourceDictionary>
+
+
+
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="780" d:DesignHeight="520"
+        x:Class="Lesson4_Settings.MainWindow"
+        Width="780" Height="520"
+        CanResize="False"
+        Title="Настройки">
+  
+  <Window.Styles>
+    
+    <Style Selector="Button">
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="Padding" Value="{DynamicResource PaddingM}"/>
+      <Setter Property="CornerRadius" Value="{DynamicResource RadiusM}"/>
+    </Style>
+    
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+    
+    <Style Selector="Button.primary:pointerover">
+      <Setter Property="Opacity" Value="0.92"/>
+    </Style>
+    
+    <Style Selector="Button.primary:pressed">
+      <Setter Property="Opacity" Value="0.85"/>
+    </Style>
+    
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+      <Setter Property="Foreground" Value="White"/>
+    </Style>
+    
+    <Style Selector="Button.danger:pointerover">
+      <Setter Property="Opacity" Value="0.92"/>
+    </Style>
+    
+    <Style Selector="Button.danger:pressed">
+      <Setter Property="Opacity" Value="0.85"/>
+    </Style>
+    
+    <Style Selector="Button.ghost">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+    </Style>
+    
+    <Style Selector="Button.ghost:pointerover">
+      <Setter Property="Background" Value="#20FFFFFF"/>
+      <Setter Property="Opacity" Value="0.9"/>
+    </Style>
+    
+    <Style Selector="Button.ghost:pressed">
+      <Setter Property="Background" Value="#40FFFFFF"/>
+      <Setter Property="Opacity" Value="0.85"/>
+    </Style>
+    
+    <Style Selector="Button:disabled">
+      <Setter Property="Opacity" Value="0.5"/>
+    </Style>
+    
+  </Window.Styles>
+
+  <Grid ColumnDefinitions="220,*" RowDefinitions="Auto,*" Margin="16">
+
+    <Border Grid.RowSpan="2" 
+            CornerRadius="{DynamicResource RadiusM}" 
+            Padding="12"
+            Background="{DynamicResource SystemRegionBackgroundBrush}">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Разделы" 
+                   FontWeight="Bold" 
+                   FontSize="18"
+                   Margin="0,0,0,8"/>
+        <Button Classes="ghost" Content="Профиль"/>
+        <Button Classes="ghost" Content="Уведомления"/>
+        <Button Classes="ghost" Content="Внешний вид"/>
+        <Button Classes="danger" Content="Удалить аккаунт"/>
+      </StackPanel>
+    </Border>
+
+    <TextBlock Grid.Column="1" 
+               Text="Настройки" 
+               FontSize="22" 
+               FontWeight="Bold"
+               Margin="16,0,0,12"/>
+
+    <Border Grid.Row="1" 
+            Grid.Column="1" 
+            CornerRadius="{DynamicResource RadiusM}"
+            Padding="16" 
+            Margin="16,0,0,0"
+            Background="{DynamicResource SystemRegionBackgroundBrush}">
+      <StackPanel Spacing="10">
+        <TextBlock Text="Профиль" 
+                   FontWeight="Bold" 
+                   FontSize="18"/>
+        
+        <TextBox Watermark="Имя пользователя"
+                 Text="Иван Петров"/>
+        
+        <CheckBox Content="Получать рассылку"
+                  IsChecked="True"/>
+        
+        <StackPanel Orientation="Horizontal" 
+                    Spacing="8" 
+                    Margin="0,16,0,0">
+          <Button Classes="primary" 
+                  Content="Сохранить изменения"/>
+          
+          <Button Classes="ghost" 
+                  Content="Тема: Светлая"
+                  Click="ToggleTheme_Click"
+                  Name="ThemeToggleButton"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+  </Grid>
+</Window>
+
+
+
+CSHARP
+
+
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+
+namespace Lesson4_Settings;
+
+public partial class App : Application
+{
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+    
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindow();
+        }
+        base.OnFrameworkInitializationCompleted();
+    }
+}
+
+
+
+
+using Avalonia;
+
+namespace Lesson4_Settings;
+
+internal class Program
+{
+    public static void Main(string[] args)
+    {
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    }
+    
+    public static AppBuilder BuildAvaloniaApp()
+    {
+        return AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .LogToTrace();
+    }
+}
+
+
+
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
+
+namespace Lesson4_Settings;
+
+public partial class MainWindow : Window
+{
+    private Button _themeToggleButton;
+    
+    public MainWindow()
+    {
+        InitializeComponent();
+        _themeToggleButton = this.FindControl<Button>("ThemeToggleButton");
+        UpdateThemeButtonText();
+    }
+
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+    
+    private void ToggleTheme_Click(object sender, RoutedEventArgs e)
+    {
+        if (Application.Current == null) return;
+
+        var current = Application.Current.RequestedThemeVariant;
+        Application.Current.RequestedThemeVariant = 
+            current == ThemeVariant.Dark ? ThemeVariant.Light : ThemeVariant.Dark;
+        
+        UpdateThemeButtonText();
+    }
+    
+    private void UpdateThemeButtonText()
+    {
+        if (Application.Current == null || _themeToggleButton == null) return;
+        
+        var current = Application.Current.RequestedThemeVariant;
+        _themeToggleButton.Content = current == ThemeVariant.Dark ? 
+            "Тема: Тёмная" : "Тема: Светлая";
+    }
+}
+
+
