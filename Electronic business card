@@ -1,0 +1,16 @@
+namespace AvaloniaApp1
+{
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+        public void ShowContact_Click(object sender, RoutedEventArgs e)
+        {
+            ContactInfoText.Text = "Email: ivan@student.ru\nTel: +7 900 123 45 67";
+            ActionBtn.Content = "Контакты показаны";
+            ActionBtn.IsEnabled = false;
+        }
+    }
+}
