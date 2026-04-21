@@ -1,0 +1,95 @@
+using System.Collections.ObjectModel;
+using System.Linq;
+using ContactManager.Models;
+using ContactManager.Services;
+
+namespace ContactManager.ViewModels;
+
+public sealed class MainViewModel : ViewModelBase
+{
+    private readonly EmployeeStorage _storage = new();
+    
+    private string _newName = "";
+    private string _newPosition = "";
+    private string _newPhone = "";
+    private string _formError = "";
+    private string _searchText = "";
+    private Employee? _selectedEmployee;
+
+    public ObservableCollection<Employee> Employees { get; } = new();
+    public ObservableCollection<Employee> VisibleEmployees { get; } = new();
+
+    public string NewName { get => _newName; set => SetField(ref _newName, value); }
+    public string NewPosition { get => _newPosition; set => SetField(ref _newPosition, value); }
+    public string NewPhone { get => _newPhone; set => SetField(ref _newPhone, value); }
+    public string FormError { get => _formError; set => SetField(ref _formError, value); }
+    
+    public string SearchText 
+    { 
+        get => _searchText; 
+        set { if (SetField(ref _searchText, value)) ApplyFilter(); } 
+    }
+
+    public Employee? SelectedEmployee 
+    { 
+        get => _selectedEmployee; 
+        set => SetField(ref _selectedEmployee, value); 
+    }
+
+    public RelayCommand AddCommand { get; }
+    public RelayCommand DeleteCommand { get; }
+    public RelayCommand SaveCommand { get; }
+    public RelayCommand LoadCommand { get; }
+
+    public MainViewModel()
+    {
+        AddCommand = new RelayCommand(AddEmployee);
+        DeleteCommand = new RelayCommand(DeleteSelected);
+        SaveCommand = new RelayCommand(SaveToDisk);
+        LoadCommand = new RelayCommand(LoadFromDisk);
+        
+        LoadFromDisk();
+    }
+
+    private void ApplyFilter()
+    {
+        var filtered = Employees.Where(e => 
+            string.IsNullOrWhiteSpace(SearchText) || 
+            e.Name.Contains(SearchText, System.StringComparison.OrdinalIgnoreCase) ||
+            e.Position.Contains(SearchText, System.StringComparison.OrdinalIgnoreCase));
+
+        VisibleEmployees.Clear();
+        foreach (var emp in filtered) VisibleEmployees.Add(emp);
+    }
+
+    private void AddEmployee()
+    {
+        if (string.IsNullOrWhiteSpace(NewName))
+        {
+            FormError = "Имя обязательно!";
+            return;
+        }
+        
+        Employees.Add(new Employee { Name = NewName, Position = NewPosition, Phone = NewPhone });
+        NewName = ""; NewPosition = ""; NewPhone = ""; FormError = "";
+        ApplyFilter();
+    }
+
+    private void DeleteSelected()
+    {
+        if (SelectedEmployee != null)
+        {
+            Employees.Remove(SelectedEmployee);
+            ApplyFilter();
+        }
+    }
+
+    private async void SaveToDisk() => await _storage.SaveAsync(Employees);
+    private async void LoadFromDisk()
+    {
+        var data = await _storage.LoadAsync();
+        Employees.Clear();
+        foreach (var item in data) Employees.Add(item);
+        ApplyFilter();
+    }
+}
