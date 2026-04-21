@@ -1,0 +1,186 @@
+Contact.cs
+public class Contact
+{
+    public int Id { get; set; }
+    public string FullName { get; set; } = null!;
+    public string? Phone { get; set; }
+    public string? Email { get; set; }
+    public string? Department { get; set; }
+}
+
+Program.cs
+using System.Data;
+using Microsoft.Data.Sqlite;
+
+class Program
+{
+    private const string DatabaseFileName = "contacts.db";
+    private static readonly string ConnectionString = $"Data Source={Path.Combine(AppContext.BaseDirectory, DatabaseFileName)}";
+
+    static void Main(string[] args)
+    {
+        Console.WriteLine($"Database path: {Path.Combine(AppContext.BaseDirectory, DatabaseFileName)}");
+        
+        try
+        {
+            EnsureDatabase();
+
+            Console.WriteLine("\n--- All Contacts ---");
+            PrintContacts(GetAllContacts());
+
+            Console.WriteLine("\n--- IT Department ---");
+            PrintContacts(GetContactsByDepartment("IT"));
+
+            Console.WriteLine("\n--- Search ID 3 ---");
+            PrintContact(GetContactById(3));
+
+            Console.WriteLine("\n--- Contacts without Email ---");
+            PrintContacts(GetContactsWithoutEmail());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    private static void EnsureDatabase()
+    {
+        using var connection = new SqliteConnection(ConnectionString);
+        connection.Open();
+
+        var createTableCommand = connection.CreateCommand();
+        createTableCommand.CommandText = @"
+            CREATE TABLE IF NOT EXISTS Contacts (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                FullName TEXT NOT NULL,
+                Phone TEXT,
+                Email TEXT,
+                Department TEXT
+            );";
+        createTableCommand.ExecuteNonQuery();
+
+        var checkCommand = connection.CreateCommand();
+        checkCommand.CommandText = "SELECT COUNT(*) FROM Contacts";
+        long count = (long)(checkCommand.ExecuteScalar() ?? 0);
+
+        if (count == 0)
+        {
+            var insertCommand = connection.CreateCommand();
+            insertCommand.CommandText = @"
+                INSERT INTO Contacts (FullName, Phone, Email, Department) VALUES 
+                ('Иван Иванов', '+79001112233', 'ivan@mail.com', 'IT'),
+                ('Мария Орлова', NULL, 'maria@mail.com', 'HR'),
+                ('Алексей Петров', '+79005556677', NULL, 'IT'),
+                ('Елена Сидорова', '+79110001122', 'elena@work.com', 'Sales'),
+                ('Дмитрий Кузнецов', NULL, NULL, NULL),
+                ('Анна Волкова', '+79998887766', 'anna@mail.com', 'IT'),
+                ('Сергей Попов', '+79223334455', 'serg@test.com', 'Security'),
+                ('Ольга Соколова', '+79554443322', 'olga@mail.com', 'HR');";
+            insertCommand.ExecuteNonQuery();
+        }
+    }
+
+    private static List<Contact> GetAllContacts()
+    {
+        var list = new List<Contact>();
+        using var connection = new SqliteConnection(ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Id, FullName, Phone, Email, Department FROM Contacts";
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            list.Add(MapContact(reader));
+        }
+        return list;
+    }
+
+    private static Contact? GetContactById(int id)
+    {
+        using var connection = new SqliteConnection(ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Id, FullName, Phone, Email, Department FROM Contacts WHERE Id = @id";
+        command.Parameters.AddWithValue("@id", id);
+
+        using var reader = command.ExecuteReader();
+        if (reader.Read())
+        {
+            return MapContact(reader);
+        }
+        return null;
+    }
+
+    private static List<Contact> GetContactsByDepartment(string department)
+    {
+        var list = new List<Contact>();
+        using var connection = new SqliteConnection(ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Id, FullName, Phone, Email, Department FROM Contacts WHERE Department = @dept";
+        command.Parameters.AddWithValue("@dept", department);
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            list.Add(MapContact(reader));
+        }
+        return list;
+    }
+
+    private static List<Contact> GetContactsWithoutEmail()
+    {
+        var list = new List<Contact>();
+        using var connection = new SqliteConnection(ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT Id, FullName, Phone, Email, Department FROM Contacts WHERE Email IS NULL";
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            list.Add(MapContact(reader));
+        }
+        return list;
+    }
+
+    private static Contact MapContact(SqliteDataReader reader)
+    {
+        return new Contact
+        {
+            Id = reader.GetInt32(0),
+            FullName = reader.GetString(1),
+            Phone = reader.IsDBNull(2) ? null : reader.GetString(2),
+            Email = reader.IsDBNull(3) ? null : reader.GetString(3),
+            Department = reader.IsDBNull(4) ? null : reader.GetString(4)
+        };
+    }
+
+    private static void PrintContacts(IEnumerable<Contact> contacts)
+    {
+        foreach (var contact in contacts)
+        {
+            PrintContact(contact);
+        }
+    }
+
+    private static void PrintContact(Contact? contact)
+    {
+        if (contact == null)
+        {
+            Console.WriteLine("Запись не найдена.");
+            return;
+        }
+
+        string phone = contact.Phone ?? "<нет телефона>";
+        string email = contact.Email ?? "<нет e-mail>";
+        string dept = contact.Department ?? "<без отдела>";
+
+        Console.WriteLine($"{contact.Id} | {contact.FullName} | {phone} | {email} | {dept}");
+    }
+}
