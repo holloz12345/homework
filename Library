@@ -1,0 +1,46 @@
+SELECT 
+    Title AS Название_Книги, 
+    Author AS Автор_Книги, 
+    Price * 1.15 AS Цена_с_Наценкой
+FROM Books;
+
+SELECT * FROM Books
+WHERE Title LIKE '%Программирование%' 
+   OR Title LIKE '%C#%';
+
+SELECT * FROM Books
+WHERE GenreId IS NULL;
+
+SELECT 
+    b.Title AS [Название книги], 
+    b.Author AS Автор, 
+    g.Name AS [Название жанра]
+FROM Books b
+INNER JOIN Genres g ON b.GenreId = g.Id;
+
+SELECT 
+    b.Title AS [Название книги], 
+    b.Author AS Автор, 
+    g.Name AS [Название жанра]
+FROM Books b
+LEFT JOIN Genres g ON b.GenreId = g.Id;
+
+SELECT 
+    g.Name AS [Название жанра], 
+    COUNT(b.Id) AS Количество
+FROM Genres g
+LEFT JOIN Books b ON g.Id = b.GenreId
+GROUP BY g.Name;
+
+SELECT 
+    g.Name AS [Название жанра], 
+    AVG(b.Price) AS [Средняя цена]
+FROM Genres g
+JOIN Books b ON g.Id = b.GenreId
+GROUP BY g.Name
+HAVING AVG(b.Price) > 1000
+ORDER BY [Средняя цена] DESC;
+
+SELECT * FROM Books
+ORDER BY Title
+LIMIT 3 OFFSET 3;
