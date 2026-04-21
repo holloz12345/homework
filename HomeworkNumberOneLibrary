@@ -1,0 +1,30 @@
+CREATE TABLE Genres (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Name TEXT NOT NULL UNIQUE
+);
+
+
+CREATE TABLE Books (
+    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+    Title TEXT NOT NULL,
+    Author TEXT,
+    Price REAL,
+    GenreId INTEGER,
+
+    FOREIGN KEY (GenreId) REFERENCES Genres(Id) ON DELETE SET NULL
+);
+
+
+INSERT INTO Genres (Name) VALUES ('Программирование');
+INSERT INTO Genres (Name) VALUES ('Фантастика');
+
+INSERT INTO Books (Title, Author, Price, GenreId) 
+VALUES ('C# in Depth', 'Jon Skeet', 1200.00, 1);
+
+INSERT INTO Books (Title, Author, Price, GenreId) 
+VALUES ('Дюна', 'Фрэнк Герберт', 850.50, 2);
+
+
+UPDATE Books 
+SET Price = 1350.00 
+WHERE Id = 1;
