@@ -1,0 +1,143 @@
+using Microsoft.Data.Sqlite;
+
+class Program
+{
+    private static readonly string DbPath =
+        Path.Combine(AppContext.BaseDirectory, "ContactManager.db");
+
+    private static readonly string ConnectionString =
+        $"Data Source={DbPath}";
+
+    static void Main()
+    {
+        Console.WriteLine($"Файл БД: {DbPath}");
+        Console.WriteLine();
+
+        using var connection = new SqliteConnection(ConnectionString);
+
+        connection.Open();
+
+        CreateTable(connection);
+
+        InsertTestData(connection);
+
+        PrintReports(connection);
+    }
+
+    static void CreateTable(SqliteConnection connection)
+    {
+        string sql = @"
+            CREATE TABLE IF NOT EXISTS Contacts
+            (
+                Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                FullName TEXT NOT NULL,
+                Phone TEXT NULL,
+                Email TEXT NULL,
+                Department TEXT NULL
+            );
+        ";
+
+        using var command = new SqliteCommand(sql, connection);
+
+        command.ExecuteNonQuery();
+    }
+
+    static void InsertTestData(SqliteConnection connection)
+    {
+        int count = ExecuteScalarInt(
+            connection,
+            "SELECT COUNT(*) FROM Contacts"
+        );
+
+        if (count > 0)
+            return;
+
+        string sql = @"
+            INSERT INTO Contacts
+            (FullName, Phone, Email, Department)
+            VALUES
+            ('Анна Соколова', '111-111', 'anna@mail.ru', 'IT'),
+
+            ('Иван Петров', NULL, 'ivan@gmail.com', 'HR'),
+
+            ('Мария Орлова', '222-222', NULL, 'Sales'),
+
+            ('Дмитрий Волков', '333-333', 'dima@mail.ru', 'IT'),
+
+            ('Олег Смирнов', NULL, NULL, 'Marketing'),
+
+            ('Елена Котова', '444-444', 'elena@mail.ru', 'HR');
+        ";
+
+        using var command = new SqliteCommand(sql, connection);
+
+        command.ExecuteNonQuery();
+    }
+
+    static void PrintReports(SqliteConnection connection)
+    {
+        Console.WriteLine(
+            $"Всего контактов: " +
+            ExecuteScalarInt(connection,
+            "SELECT COUNT(*) FROM Contacts")
+        );
+
+        Console.WriteLine(
+            $"Контактов с e-mail: " +
+            ExecuteScalarInt(connection,
+            "SELECT COUNT(*) FROM Contacts WHERE Email IS NOT NULL")
+        );
+
+        Console.WriteLine(
+            $"Контактов без телефона: " +
+            ExecuteScalarInt(connection,
+            "SELECT COUNT(*) FROM Contacts WHERE Phone IS NULL")
+        );
+
+        Console.WriteLine(
+            $"Контактов отдела IT: " +
+            ExecuteScalarInt(connection,
+            "SELECT COUNT(*) FROM Contacts WHERE Department = 'IT'")
+        );
+
+        Console.WriteLine(
+            $"Количество отделов: " +
+            ExecuteScalarInt(connection,
+            "SELECT COUNT(DISTINCT Department) FROM Contacts")
+        );
+
+        Console.WriteLine(
+            $"Максимальный Id: " +
+            ExecuteScalarInt(connection,
+            "SELECT MAX(Id) FROM Contacts")
+        );
+
+        Console.WriteLine(
+            $"Первый по алфавиту: " +
+            ExecuteScalarString(connection,
+            "SELECT FullName FROM Contacts ORDER BY FullName LIMIT 1")
+        );
+    }
+
+    static int ExecuteScalarInt(
+        SqliteConnection connection,
+        string sql)
+    {
+        using var command = new SqliteCommand(sql, connection);
+
+        object result = command.ExecuteScalar();
+
+        return Convert.ToInt32(result);
+    }
+
+    static string ExecuteScalarString(
+        SqliteConnection connection,
+        string sql)
+    {
+        using var command = new SqliteCommand(sql, connection);
+
+        object result = command.ExecuteScalar();
+
+        return Convert.ToString(result) ?? "";
+    }
+}
