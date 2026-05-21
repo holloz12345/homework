@@ -1,0 +1,97 @@
+Tag.cs
+
+using System.ComponentModel.DataAnnotations;
+
+public class Tag
+{
+    public int Id { get; set; }
+
+    [Required]
+    public string Name { get; set; } = "";
+
+    public List<ContactTag> ContactTags { get; set; } = new();
+}
+
+ContactTag.cs
+
+public class ContactTag
+{
+    public int ContactId { get; set; }
+    public Contact Contact { get; set; }
+
+    public int TagId { get; set; }
+    public Tag Tag { get; set; }
+}
+
+Contact.cs
+
+public List<ContactTag> ContactTags { get; set; } = new();
+
+AppDbContext.cs
+
+public DbSet<Tag> Tags { get; set; }
+
+public DbSet<ContactTag> ContactTags { get; set; }
+
+
+OnModelCreating
+
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<ContactTag>()
+        .HasKey(x => new { x.ContactId, x.TagId });
+}
+
+
+dotnet ef migrations add tags
+dotnet ef database update
+
+var vip = new Tag { Name = "VIP" };
+
+context.Tags.Add(vip);
+
+var contact = context.Contacts.First();
+
+contact.ContactTags.Add(new ContactTag
+{
+    Tag = vip
+});
+
+context.SaveChanges();
+
+var contacts = context.Contacts
+    .Include(x => x.ContactTags)
+    .ThenInclude(x => x.Tag)
+    .ToList();
+
+foreach (var c in contacts)
+{
+    Console.WriteLine(c.FullName);
+
+    foreach (var t in c.ContactTags)
+    {
+        Console.WriteLine(t.Tag.Name);
+    }
+}
+
+public class ContactDto
+{
+    public string FullName { get; set; }
+
+    public int TagCount { get; set; }
+}
+
+var data = context.Contacts
+    .Select(x => new ContactDto
+    {
+        FullName = x.FullName,
+        TagCount = x.ContactTags.Count
+    })
+    .ToList();
+
+var data = context.Contacts
+    .Include(x => x.ContactTags)
+    .ThenInclude(x => x.Tag)
+    .AsSplitQuery()
+    .ToList();
+
